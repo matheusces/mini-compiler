@@ -1,9 +1,11 @@
-x y soma1
-1 2 
-print
+x y soma1 
+1 222
+print asdas
+12
 25
 234543534
 identi_2
+1232423a
 
 2 + 4 * 7 / 8 ++
 
