@@ -59,6 +59,12 @@ public class Scanner {
 					} else if (isExclamation(currentChar)) {
 						content += currentChar;
 						state = 7;
+					} else if(isLeftParenthesis(currentChar)) {
+						content += currentChar;
+           				return new Token(TokenType.LEFT_PARENTHESIS, content);
+					} else if(isRightParenthesis(currentChar)) {
+						content += currentChar;
+            			return new Token(TokenType.RIGHT_PARENTHESIS, content);
 					}
 					break;
 				case 1:
@@ -74,6 +80,13 @@ public class Scanner {
 					if(isDigit(currentChar)) {
 						content += currentChar;
 						state = 2;
+					} else if(currentChar == '.') {
+						if (this.nextCharIsDigit()) {
+							content += currentChar;
+							state = 8;
+						} else {
+							throw new RuntimeException("Number Malformed!");
+						}
 					} else if(isLetter(currentChar)) {
 						throw new RuntimeException("Number Malformed!");
 					} else {
@@ -120,14 +133,25 @@ public class Scanner {
 						this.back();
 						throw new RuntimeException("Operator ! don't is supported");
 					}
+				case 8:
+					if (isDigit(currentChar)) {
+						content += currentChar;
+						state = 8;
+					} else {
+						this.back();
+						return new Token(TokenType.NUMBER, content);
+					}
+					break;
 			}
-
-
 		}
 	}
 
 	private char nextChar() {
 		return this.contentTXT[this.pos++];
+	}
+
+	private boolean nextCharIsDigit() {
+		return this.isDigit(this.contentTXT[this.pos + 1]);
 	}
 
 	private void back() {
@@ -192,6 +216,14 @@ public class Scanner {
 			default: 
 				return new Token(TokenType.DIV_OP, c);	
 		}
+	}
+
+	private boolean isLeftParenthesis(char c) {
+		return c == '(';
+	}
+	
+	private boolean isRightParenthesis(char c) {
+		return c == ')';
 	}
 
 }
