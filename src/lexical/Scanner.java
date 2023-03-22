@@ -36,7 +36,12 @@ public class Scanner {
 
 			switch (state) {
 				case 0:
-					if (this.isLetter(currentChar)) {
+					if (currentChar == '#') {
+						while (!this.isEndOfLine(currentChar)) {
+                            currentChar = this.nextChar();
+                        }
+                        state = 0;
+					}else if (this.isLetter(currentChar)) {
 						content += currentChar;
 						state = 1;
 					} else if (isSpace(currentChar)) {
@@ -73,6 +78,9 @@ public class Scanner {
 						state = 1;
 					} else {
 						this.back();
+						if (isKeyword()) {
+							return this.getKeyword(content);
+						}
 						return new Token(TokenType.IDENTYFIER, content);
 					}
 					break;
@@ -146,6 +154,25 @@ public class Scanner {
 		}
 	}
 
+	private Token getKeyword(String c) {
+		switch (c) {
+			case "int":
+				return new Token(TokenType.KEYWORD_INT, c);
+			case "float":
+				return new Token(TokenType.KEYWORD_FLOAT, c);
+			case "print":
+				return new Token(TokenType.KEYWORD_PRINT, c);
+			case "if":
+				return new Token(TokenType.KEYWORD_IF, c);
+			default: 
+				return new Token(TokenType.KEYWORD_ELSE, c);	
+		}
+	}
+	
+	private boolean isKeyword(String c) {
+		return c == "int" || c == "float" || c == "print" || c == "if" || c == "else";
+	}
+
 	private char nextChar() {
 		return this.contentTXT[this.pos++];
 	}
@@ -188,6 +215,10 @@ public class Scanner {
 
 	private boolean isSpace(char c) {
 		return c == ' ' || c == '\n' || c == '\t' || c == '\r';
+	}
+
+	private boolean isEndOfLine(char c) {
+		return c == '\n' || c == '\r';
 	}
 
 	private boolean isEquals(char c) {
