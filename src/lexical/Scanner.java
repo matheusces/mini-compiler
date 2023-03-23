@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import utils.TokenType;
+import utils.Keyword;
 
 public class Scanner {
 
@@ -156,15 +157,15 @@ public class Scanner {
 	private Token getKeyword(String c) {
 		switch (c) {
 			case "int":
-				return new Token(TokenType.KEYWORD_INT, c);
+				return new Token(Keyword.INT, c);
 			case "float":
-				return new Token(TokenType.KEYWORD_FLOAT, c);
+				return new Token(Keyword.FLOAT, c);
 			case "print":
-				return new Token(TokenType.KEYWORD_PRINT, c);
+				return new Token(Keyword.PRINT, c);
 			case "if":
-				return new Token(TokenType.KEYWORD_IF, c);
+				return new Token(Keyword.IF, c);
 			default: 
-				return new Token(TokenType.KEYWORD_ELSE, c);	
+				return new Token(Keyword.ELSE, c);	
 		}
 	}
 	
