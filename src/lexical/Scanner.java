@@ -13,12 +13,17 @@ public class Scanner {
 	int pos;
 	char[] contentTXT;
 	int state;
+	int line;
+	int column;
 
 	public Scanner(String filename) {
 		try {
 			String contentBuffer = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
 			this.contentTXT = contentBuffer.toCharArray();
 			this.pos = 0;
+			this.line = 0;
+			this.column = -1;
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -33,7 +38,13 @@ public class Scanner {
 			if (isEOF()) {
 				return null;
 			}
+
 			currentChar = this.nextChar();
+
+			if (isEndOfLine(currentChar)) {
+				this.line += 1;
+				this.column = -1;
+			}
 
 			switch (state) {
 				case 0:
@@ -81,12 +92,13 @@ public class Scanner {
 						content += currentChar;
 						state = 1;
 					} else {
-						this.back();
+						if (!isEndOfLine(currentChar)) this.back();
 						for (Keyword k : Keyword.values()) {
 							if (content.toUpperCase().intern() == k.toString().intern()) {
 								return new Token(TokenType.RESERVED_KEYWORD, content);
 							}
 						}
+
 						return new Token(TokenType.IDENTYFIER, content);
 					}
 					break;
@@ -98,9 +110,9 @@ public class Scanner {
 						content += currentChar;
 						state = 8;
 					} else if(isLetter(currentChar)) {
-						throw new RuntimeException("Number Malformed!");
+						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					} else {
-						this.back();
+						if (!isEndOfLine(currentChar)) this.back();
 						return new Token(TokenType.NUMBER, content);
 					}
 					break;
@@ -113,7 +125,7 @@ public class Scanner {
 						return new Token(TokenType.EQUALS_OP, content);
 
 					} else {
-						this.back();
+						if (!isEndOfLine(currentChar)) this.back();
 						return new Token(TokenType.ASSIGN_OP, content);
 					}
 
@@ -122,7 +134,7 @@ public class Scanner {
 						content += currentChar;
 						return new Token(TokenType.LESS_EQUALS_OP, content);
 					} else {
-						this.back();
+						if (!isEndOfLine(currentChar)) this.back();
 						return new Token(TokenType.LESS_OP, content);
 					}
 				
@@ -131,7 +143,7 @@ public class Scanner {
 						content += currentChar;
 						return new Token(TokenType.GREATER_EQUALS_OP, content);
 					} else {
-						this.back();
+						if (!isEndOfLine(currentChar)) this.back();
 						return new Token(TokenType.GREATER_OP, content);
 					}
 
@@ -140,7 +152,7 @@ public class Scanner {
 						content += currentChar;
 						return new Token(TokenType.DIF_OP, content);
 					} else {
-						this.back();
+						if (!isEndOfLine(currentChar)) this.back();
 						throw new RuntimeException("Operator ! don't is supported");
 					}
 				case 8:
@@ -157,10 +169,12 @@ public class Scanner {
 	}
 
 	private char nextChar() {
+		this.column++;
 		return this.contentTXT[this.pos++];
 	}
 
 	private void back() {
+		this.column--;
 		this.pos--;
 	}
 
