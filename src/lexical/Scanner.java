@@ -70,6 +70,9 @@ public class Scanner {
 					} else if(isRightParenthesis(currentChar)) {
 						content += currentChar;
             			return new Token(TokenType.RIGHT_PARENTHESIS, content);
+					} else if (isDot(currentChar)) {
+						content += currentChar;
+						state = 8;
 					}
 					break;
 				case 1:
@@ -78,7 +81,7 @@ public class Scanner {
 						state = 1;
 					} else {
 						this.back();
-						if (isKeyword()) {
+						if (isKeyword(content)) {
 							return this.getKeyword(content);
 						}
 						return new Token(TokenType.IDENTYFIER, content);
@@ -89,12 +92,8 @@ public class Scanner {
 						content += currentChar;
 						state = 2;
 					} else if(currentChar == '.') {
-						if (this.nextCharIsDigit()) {
-							content += currentChar;
-							state = 8;
-						} else {
-							throw new RuntimeException("Number Malformed!");
-						}
+						content += currentChar;
+						state = 8;
 					} else if(isLetter(currentChar)) {
 						throw new RuntimeException("Number Malformed!");
 					} else {
@@ -144,10 +143,10 @@ public class Scanner {
 				case 8:
 					if (isDigit(currentChar)) {
 						content += currentChar;
-						state = 8;
+						state = 2;
 					} else {
 						this.back();
-						return new Token(TokenType.NUMBER, content);
+						throw new RuntimeException("Number malformed");
 					}
 					break;
 			}
@@ -177,10 +176,6 @@ public class Scanner {
 		return this.contentTXT[this.pos++];
 	}
 
-	private boolean nextCharIsDigit() {
-		return this.isDigit(this.contentTXT[this.pos + 1]);
-	}
-
 	private void back() {
 		this.pos--;
 	}
@@ -205,12 +200,12 @@ public class Scanner {
 		return c == '>';
 	}
 
-	private boolean isExclamation(char c) {
-		return c == '!';
+	private boolean isDot(char c) {
+		return c == '.';
 	}
 
-	private boolean isOperator(char c) {
-		return c == '>' || c == '=' || c == '<' || c == '!';
+	private boolean isExclamation(char c) {
+		return c == '!';
 	}
 
 	private boolean isSpace(char c) {
