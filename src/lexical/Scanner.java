@@ -82,8 +82,10 @@ public class Scanner {
 						state = 1;
 					} else {
 						this.back();
-						if (isKeyword(content)) {
-							return this.getKeyword(content);
+						for (Keyword k : Keyword.values()) {
+							if (content.toUpperCase().intern() == k.toString().intern()) {
+								return new Token(TokenType.RESERVED_KEYWORD, content);
+							}
 						}
 						return new Token(TokenType.IDENTYFIER, content);
 					}
@@ -152,25 +154,6 @@ public class Scanner {
 					break;
 			}
 		}
-	}
-
-	private Token getKeyword(String c) {
-		switch (c) {
-			case "int":
-				return new Token(Keyword.INT, c);
-			case "float":
-				return new Token(Keyword.FLOAT, c);
-			case "print":
-				return new Token(Keyword.PRINT, c);
-			case "if":
-				return new Token(Keyword.IF, c);
-			default: 
-				return new Token(Keyword.ELSE, c);	
-		}
-	}
-	
-	private boolean isKeyword(String c) {
-		return c == "int" || c == "float" || c == "print" || c == "if" || c == "else";
 	}
 
 	private char nextChar() {
