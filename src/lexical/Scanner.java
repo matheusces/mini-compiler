@@ -85,6 +85,8 @@ public class Scanner {
 					} else if (isDot(currentChar)) {
 						content += currentChar;
 						state = 8;
+					} else {
+						throw new RuntimeException("Error: Invalid Character [line:" + line  + " ] [column:"+ column + "]");
 					}
 					break;
 				case 1:
@@ -95,7 +97,7 @@ public class Scanner {
 						if (!isEndOfLine(currentChar)) this.back();
 						for (Keyword k : Keyword.values()) {
 							if (content.toUpperCase().intern() == k.toString().intern()) {
-								return new Token(TokenType.RESERVED_KEYWORD, content);
+								return new Token(TokenType.RESERVED_KEYWORD, k.toString());
 							}
 						}
 
@@ -153,7 +155,7 @@ public class Scanner {
 						return new Token(TokenType.DIF_OP, content);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						throw new RuntimeException("Operator ! don't is supported");
+						throw new RuntimeException("Operator ! don't is supported [line:" + line  + " ] [column:"+ column + "]");
 					}
 				case 8:
 					if (isDigit(currentChar)) {
@@ -161,7 +163,7 @@ public class Scanner {
 						state = 2;
 					} else {
 						this.back();
-						throw new RuntimeException("Number malformed");
+						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					}
 					break;
 			}
