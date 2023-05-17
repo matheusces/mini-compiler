@@ -96,7 +96,7 @@ public class Scanner {
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
 						for (Keyword k : Keyword.values()) {
-							if (content.toUpperCase().intern() == k.toString().intern()) {
+							if (content.intern() == k.toString().intern()) {
 								return new Token(TokenType.RESERVED_KEYWORD, k.toString());
 							}
 						}
@@ -111,11 +111,10 @@ public class Scanner {
 					} else if(currentChar == '.') {
 						content += currentChar;
 						state = 8;
-					} else if(isLetter(currentChar)) {
-						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
-					} else {
-						if (!isEndOfLine(currentChar)) this.back();
+					} else	if (isSpace(currentChar) || isEndOfLine(currentChar)) {
 						return new Token(TokenType.NUMBER, content);
+					} else {
+						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					}
 					break;
 					
@@ -160,9 +159,20 @@ public class Scanner {
 				case 8:
 					if (isDigit(currentChar)) {
 						content += currentChar;
-						state = 2;
+						state = 9;
 					} else {
 						this.back();
+						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
+					}
+					break;
+
+				case 9: 
+					if (isDigit(currentChar)) {
+						content += currentChar;
+						state = 9;
+					} else if (isSpace(currentChar) || isEndOfLine(currentChar)) {
+						return new Token(TokenType.NUMBER, content);
+					} else {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					}
 					break;
@@ -232,6 +242,7 @@ public class Scanner {
 	}
 
 	private Token getMathToken(String c) {
+		this.back();
 		switch (c) {
 			case "+":
 				return new Token(TokenType.SUM_OP, c);
