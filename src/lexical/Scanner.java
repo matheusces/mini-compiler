@@ -21,8 +21,8 @@ public class Scanner {
 			String contentBuffer = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
 			this.contentTXT = contentBuffer.toCharArray();
 			this.pos = 0;
-			this.line = 0;
-			this.column = -1;
+			this.line = 1;
+			this.column = 1;
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -43,7 +43,7 @@ public class Scanner {
 
 			if (isEndOfLine(currentChar)) {
 				this.line += 1;
-				this.column = -1;
+				this.column = 1;
 			}
 
 			switch (state) {
@@ -86,7 +86,7 @@ public class Scanner {
 						content += currentChar;
 						state = 8;
 					} else {
-						throw new RuntimeException("Error: Invalid Character [line:" + line  + " ] [column:"+ column + "]");
+						throw new RuntimeException("Error: Invalid Character [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
 					break;
 				case 1:
@@ -96,9 +96,13 @@ public class Scanner {
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
 						for (Keyword k : Keyword.values()) {
-							if (content.intern() == k.toString().intern()) {
+							if (content.intern() == k.toString().toLowerCase().intern()) {
 								return new Token(TokenType.RESERVED_KEYWORD, k.toString());
 							}
+						}
+
+						if(this.isEspecialCharacter(content)) {
+							throw new RuntimeException("Error: Invalid Identyfier [line:" + this.line  + " ] [column:"+ this.column + "]");
 						}
 
 						return new Token(TokenType.IDENTYFIER, content);
@@ -111,20 +115,23 @@ public class Scanner {
 					} else if(currentChar == '.') {
 						content += currentChar;
 						state = 8;
-					} else	if (isSpace(currentChar) || isEndOfLine(currentChar)) {
+					} else	if (isSpace(currentChar) || isEndOfLine(currentChar) || isRightParenthesis(currentChar)) {
 						return new Token(TokenType.NUMBER, content);
 					} else {
-						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
+						throw new RuntimeException("Error: Invalid Character for Number [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
 					break;
 					
 				case 3: 
 					return getMathToken(content);
 				case 4: 
-					if (isEquals(currentChar)) {
+					if (isEquals(currentChar) && isEquals(this.contentTXT[this.pos])) {
+						this.nextChar();
+						throw new RuntimeException("Error: Invalid Character [line:" + this.line  + " ] [column:"+ this.column + "]");
+
+					} else if(isEquals(currentChar) && !isEquals(this.contentTXT[this.pos])) {
 						content += currentChar;
 						return new Token(TokenType.EQUALS_OP, content);
-
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
 						return new Token(TokenType.ASSIGN_OP, content);
@@ -239,6 +246,10 @@ public class Scanner {
 			return true;
 		}
 		return false;
+	}
+
+	private boolean isEspecialCharacter(String c) {
+		return c.matches("[\\p{Punct}]");
 	}
 
 	private Token getMathToken(String c) {
