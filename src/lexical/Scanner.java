@@ -95,17 +95,16 @@ public class Scanner {
 						state = 1;
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						for (Keyword k : Keyword.values()) {
-							if (content.intern() == k.toString().toLowerCase().intern()) {
-								return new Token(TokenType.RESERVED_KEYWORD, k.toString());
+						if (isSpace(currentChar)) {
+							for (Keyword k : Keyword.values()) {
+								if (content.intern() == k.toString().toLowerCase().intern()) {
+									return new Token(TokenType.RESERVED_KEYWORD, k.toString());
+								}
 							}
-						}
 
-						if(this.isEspecialCharacter(content)) {
-							throw new RuntimeException("Error: Invalid Identyfier [line:" + this.line  + " ] [column:"+ this.column + "]");
+							return new Token(TokenType.IDENTYFIER, content);
 						}
-
-						return new Token(TokenType.IDENTYFIER, content);
+						throw new RuntimeException("Error: Invalid character for Identifyer: [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
 					break;
 				case 2:
