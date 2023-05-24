@@ -85,6 +85,16 @@ public class Scanner {
 					} else if (isDot(currentChar)) {
 						content += currentChar;
 						state = 8;
+					} else if (isDoubleQuotes(currentChar)) {
+						content += currentChar;
+						state = 10;
+					} else if (isDelimiter(currentChar)) {
+						content += currentChar;
+						return new Token(TokenType.DELIMITER, content);
+						
+					} else if (isTwoPoints(currentChar)) {
+						content += currentChar;
+						return new Token(TokenType.TWO_POINTS, content);
 					} else {
 						throw new RuntimeException("Error: Invalid Character [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
@@ -182,6 +192,15 @@ public class Scanner {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					}
 					break;
+
+				case 10: 
+					if (isDoubleQuotes(currentChar)) {
+						content += currentChar;
+						return new Token(TokenType.STRING, content);
+					}
+					content += currentChar;
+					state = 10;
+					break;
 			}
 		}
 	}
@@ -240,6 +259,14 @@ public class Scanner {
 		return c == '+' || c == '-' || c == '*' || c == '/';
 	}
 
+	private boolean isDelimiter(char c) {
+		return c == ';';
+	}
+
+	private boolean isTwoPoints(char c) {
+		return c == ':';
+	}
+
 	private boolean isEOF() {
 		if (this.pos >= this.contentTXT.length) {
 			return true;
@@ -271,6 +298,10 @@ public class Scanner {
 	
 	private boolean isRightParenthesis(char c) {
 		return c == ')';
+	}
+
+	private boolean isDoubleQuotes(char c) {
+		return c == '"';
 	}
 
 }

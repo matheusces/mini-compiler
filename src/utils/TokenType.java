@@ -3,6 +3,7 @@ package utils;
 public enum TokenType {
 	IDENTYFIER,
 	NUMBER,
+	STRING,
 	ASSIGNMENT,
 	REL_OP,
 	SUM_OP,
@@ -18,5 +19,7 @@ public enum TokenType {
 	DIF_OP,
 	LEFT_PARENTHESIS,
 	RIGHT_PARENTHESIS,
+	DELIMITER,
+	TWO_POINTS,
 	RESERVED_KEYWORD
 }

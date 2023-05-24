@@ -1,8 +1,8 @@
-int soma = 12
-if (soma == 3) 
-    print()
+:DECLARACOES ;
 
-# meu comentario
-
-int 12 * 2 / 1 >= 2
-
+:ALGORITMO
+INPUT numero1
+PRINT "HELLO"
+PRINT numero1
+INPUT numero2
+; ;

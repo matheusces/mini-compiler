@@ -6,4 +6,11 @@ public enum Keyword {
 	PRINT,
 	IF,
 	ELSE,
+	DECLARACOES,
+	ALGORITMO,
+	THEN, 
+	ASSIGN,
+	TO,
+	INPUT,
+	WHILE
 }
