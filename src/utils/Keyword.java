@@ -12,5 +12,7 @@ public enum Keyword {
 	ASSIGN,
 	TO,
 	INPUT,
-	WHILE
+	WHILE,
+	AND,
+	OR,
 }

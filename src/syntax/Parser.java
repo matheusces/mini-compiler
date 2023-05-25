@@ -54,8 +54,36 @@ public class Parser {
 	}
 
 	public void listaDeclaracoes() {
-
+        declaracao();
+        listaDeclaracoes2();
+        this.token = this.scanner.nextToken();
+        match(this.token, TokenType.DELIMITER);
 	}
+
+    public void listaDeclaracoes2() {
+        this.token = this.scanner.nextToken();
+        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+            listaDeclaracoes();
+        }
+        
+	}
+
+    public void declaracao() {
+        tipoVar();
+        this.token = this.scanner.nextToken();
+        match(this.token, TokenType.TWO_POINTS);
+        this.token = this.scanner.nextToken();
+        match(this.token, TokenType.IDENTYFIER);
+    }
+
+    public void tipoVar() {
+        if(
+            this.token.getContent().intern() != Keyword.INT.toString().intern() 
+            && this.token.getContent().intern() != Keyword.FLOAT.toString()
+        ) {
+            throw new SyntaxException("Expected INT or FLOAT and found " + token.getContent());  
+        }
+    }
 
 	public void listaComandos(Token token) {
 		comando(token);
@@ -142,41 +170,124 @@ public class Parser {
 	}
 
 	public void expressaoAritmetica() {
+        termoAritmetico();
+        this.token = this.scanner.nextToken();
+        expressaoAritmetica2();
+        this.token = this.scanner.nextToken();
+        match(this.token, TokenType.DELIMITER);
+	}
 
+    public void expressaoAritmetica2() {
+        expressaoAritmetica3();
+        this.token = this.scanner.nextToken();
+        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+            expressaoAritmetica2();
+        }
+	}
+
+    public void expressaoAritmetica3() {
+        if (this.token.getType() == TokenType.SUM_OP) {
+            match(this.token, TokenType.SUM_OP);
+            this.token = this.scanner.nextToken();
+            termoAritmetico();
+            return;
+        }
+
+        match(this.token, TokenType.SUB_OP);
+        this.token = this.scanner.nextToken();
+        termoAritmetico();
 	}
 
 	public void expressaoRelacional() {
-
+        termoRelacional();
+        this.token = this.scanner.nextToken();
+        expressaoRelacional2();
+        this.token = this.scanner.nextToken();
+        match(this.token, TokenType.DELIMITER);
 	}
 
+    public void expressaoRelacional2() {
+        operadorBooleano();
+        this.token = this.scanner.nextToken();
+        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+            expressaoRelacional();
+        }
+    }
 
+    public void termoRelacional() {
+        if (this.token.getType() == TokenType.LEFT_PARENTHESIS) {
+            match(this.token, TokenType.LEFT_PARENTHESIS);
+            this.token = this.scanner.nextToken();
+            expressaoRelacional();
+            this.token = this.scanner.nextToken();
+            match(this.token, TokenType.RIGHT_PARENTHESIS);
+            return;
+        }
 
-	// public void E() {
-	// 	T();
-	// 	El();
-	// }
+        expressaoAritmetica();
+        this.token = this.scanner.nextToken();
+        operadorRelacional();
+        this.token = this.scanner.nextToken();
+    }
 
-	// private void El() {
-	// 	this.token = this.scanner.nextToken();
-	// 	if (this.token != null) {
-	// 		OP();
-	// 		T();
-	// 		El();
-	// 	}
-	// }
+    public void operadorRelacional() {
+        match(this.token, TokenType.REL_OP);
+    }
 
-	// private void OP() {
-	// 	if (this.token.getType() != TokenType.MATH_OP && this.token.getType() != TokenType.REL_OP) {
-	// 		throw new SyntaxException("Math or Relational operator expected, found " + token.getType());
-	// 	}
-	// }
+    public void operadorBooleano() {
+        if(
+            this.token.getContent().intern() != Keyword.AND.toString().intern() 
+            && this.token.getContent().intern() != Keyword.OR.toString()
+        ) {
+            throw new SyntaxException("Expected AND or OR and found " + token.getContent());  
+        }
+    }
 
-	// private void T() {
-	// 	this.token = this.scanner.nextToken();
-	// 	if (this.token.getType() != TokenType.IDENTYFIER && this.token.getType() != TokenType.NUMBER) {
-	// 		throw new SyntaxException("Identyfier or Number expected, found " + token.getType());
-	// 	}
+    public void termoAritmetico () {
+        fatorAritmetico();
+        this.token = this.scanner.nextToken();
+        termoAritmetico2();
+        this.token = this.scanner.nextToken();
+        match(this.token, TokenType.DELIMITER);
+    }
 
-	// }
+    public void termoAritmetico2 () {
+        termoAritmetico3();
+        this.token = this.scanner.nextToken();
+        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+            termoAritmetico2();
+        }
+    }
 
+    public void termoAritmetico3 () {
+        if (this.token.getType() == TokenType.MULT_OP) {
+            match(this.token, TokenType.MULT_OP);
+            this.token = this.scanner.nextToken();
+            fatorAritmetico();
+            return;
+        }
+
+        match(this.token, TokenType.DIV_OP);
+        this.token = this.scanner.nextToken();
+        fatorAritmetico();
+    }
+
+    public void fatorAritmetico() {
+        if (
+            this.token.getContent().intern() != Keyword.INT.toString().intern() &&
+            this.token.getContent().intern() != Keyword.FLOAT.toString().intern() &&
+            this.token.getType() != TokenType.IDENTYFIER
+        ) {
+            if (this.token.getType() != TokenType.LEFT_PARENTHESIS) {
+                throw new SyntaxException("Expected INT, FLOAT, IDENTYFIER or (EXPRESSION) and found " + token.getContent());  
+            }
+
+            match(this.token, TokenType.LEFT_PARENTHESIS);
+            this.token = this.scanner.nextToken();
+            expressaoAritmetica();
+            this.token = this.scanner.nextToken();
+            match(this.token, TokenType.RIGHT_PARENTHESIS);
+        }
+
+    } 
 }
