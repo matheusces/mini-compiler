@@ -10,7 +10,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-			Scanner scanner = new Scanner("source_code.mc");
+			Scanner scanner = new Scanner("codigo_fonte_que_deve_rodar_apos_a_implementacao.mc");
 			Parser parser = new Parser(scanner);
 			parser.Programa();
 			System.out.println("Compilation successful!");

@@ -17,7 +17,7 @@ public class Parser {
 	public void match(Token token, TokenType type) {
 		if (this.token != null) {
 			if (token.getType() != type) {
-				throw new SyntaxException("Type " + type + " expected, found " + token.getType());
+				throw new SyntaxException("Type " + type + " expected, found " + token.getType() + " with value: " +  token.getContent());
 			}
 		} else {
 			throw new SyntaxException("Type " + type + " expected, found null ");
@@ -41,32 +41,43 @@ public class Parser {
 		match(this.token, TokenType.TWO_POINTS);
 		this.token = this.scanner.nextToken();
 		match(this.token, Keyword.DECLARACOES);
-		listaDeclaracoes();	
+
+		listaDeclaracoes(null);	
+
 		this.token = this.scanner.nextToken();
 		match(this.token, TokenType.DELIMITER);
+
 		this.token = this.scanner.nextToken();
 		match(this.token, TokenType.TWO_POINTS);
 		this.token = this.scanner.nextToken();
 		match(this.token, Keyword.ALGORITMO);
+
 		listaComandos(null);
+
 		this.token = this.scanner.nextToken();
 		match(this.token, TokenType.DELIMITER);
 	}
 
-	public void listaDeclaracoes() {
+	public void listaDeclaracoes(Token tokenprop) {
+        if (tokenprop == null) {
+            this.token = this.scanner.nextToken();
+        }
+
         declaracao();
         listaDeclaracoes2();
-        this.token = this.scanner.nextToken();
+
         match(this.token, TokenType.DELIMITER);
 	}
 
     public void listaDeclaracoes2() {
+        // verifica o token seguinte:
         this.token = this.scanner.nextToken();
-        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
-            listaDeclaracoes();
+
+        if (this.token.getType() != TokenType.DELIMITER) {
+            listaDeclaracoes(this.token);
+            this.token = this.scanner.nextToken();
         }
-        
-	}
+    }
 
     public void declaracao() {
         tipoVar();
@@ -122,13 +133,12 @@ public class Parser {
 	}
 
 	public void comandoAtribuicao() {
+        this.token = this.scanner.nextToken();
 		expressaoAritmetica();
 		this.token = this.scanner.nextToken();
 		match(this.token, Keyword.TO);
 		this.token = this.scanner.nextToken();
 		match(this.token, TokenType.IDENTYFIER);
-		this.token = this.scanner.nextToken();
-		match(this.token, TokenType.DELIMITER);
 	}
 
 	public void comandoEntrada() {
@@ -144,45 +154,42 @@ public class Parser {
 	}
 	
 	public void comandoCondicao() {
-		this.token = this.scanner.nextToken();
-		match(this.token, Keyword.IF);
-		expressaoRelacional();
+		expressaoRelacional(null);
 		this.token = this.scanner.nextToken();
 		match(this.token, Keyword.THEN);
 		comando(null);
 		comandoCondicao2();
-		this.token = this.scanner.nextToken();
+
+
 		match(this.token, TokenType.DELIMITER);
 	}
 
 	public void comandoCondicao2() {
 		this.token = this.scanner.nextToken();
 		if (token != null && token.getType() != TokenType.DELIMITER) {
-			this.token = this.scanner.nextToken();
 			match(this.token, Keyword.ELSE);
 			comando(null);
+            this.token = this.scanner.nextToken();
 		}
 	}
 
 	public void comandoRepeticao() {
-		expressaoRelacional();
+		expressaoRelacional(null);
 		comando(null);
 	}
 
 	public void expressaoAritmetica() {
         termoAritmetico();
-        this.token = this.scanner.nextToken();
         expressaoAritmetica2();
-        this.token = this.scanner.nextToken();
         match(this.token, TokenType.DELIMITER);
 	}
 
     public void expressaoAritmetica2() {
-        expressaoAritmetica3();
         this.token = this.scanner.nextToken();
-        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+        if (this.token != null && (this.token.getType() == TokenType.SUM_OP || this.token.getType() == TokenType.SUB_OP)) {
+            expressaoAritmetica3();
             expressaoAritmetica2();
-        }
+        } 
 	}
 
     public void expressaoAritmetica3() {
@@ -198,40 +205,51 @@ public class Parser {
         termoAritmetico();
 	}
 
-	public void expressaoRelacional() {
-        termoRelacional();
-        this.token = this.scanner.nextToken();
+	public void expressaoRelacional(Token token) {
+        termoRelacional(token);
         expressaoRelacional2();
-        this.token = this.scanner.nextToken();
         match(this.token, TokenType.DELIMITER);
 	}
 
     public void expressaoRelacional2() {
-        operadorBooleano();
         this.token = this.scanner.nextToken();
-        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
-            expressaoRelacional();
+        if (this.token != null && this.token.getType() != TokenType.DELIMITER && (this.token.getContent().intern() == Keyword.AND.toString().intern() || this.token.getContent().intern() == Keyword.OR.toString())) {
+            operadorBooleano();
+            expressaoRelacional(token);
         }
     }
 
-    public void termoRelacional() {
+    public void termoRelacional(Token tokenprop) {
+        if (tokenprop == null) {
+            this.token = this.scanner.nextToken();
+        }
+
         if (this.token.getType() == TokenType.LEFT_PARENTHESIS) {
             match(this.token, TokenType.LEFT_PARENTHESIS);
             this.token = this.scanner.nextToken();
-            expressaoRelacional();
+            expressaoRelacional(token);
             this.token = this.scanner.nextToken();
             match(this.token, TokenType.RIGHT_PARENTHESIS);
             return;
         }
 
         expressaoAritmetica();
-        this.token = this.scanner.nextToken();
         operadorRelacional();
+
         this.token = this.scanner.nextToken();
+        expressaoAritmetica();
     }
 
     public void operadorRelacional() {
-        match(this.token, TokenType.REL_OP);
+        rel_op();
+    }
+
+    private void rel_op() {
+        this.token = this.scanner.nextToken();
+        TokenType type = this.token.getType();
+        if (type != TokenType.LESS_OP && type != TokenType.LESS_EQUALS_OP && type != TokenType.EQUALS_OP && type != TokenType.GREATER_OP && type != TokenType.GREATER_EQUALS_OP && type != TokenType.DIF_OP) {
+            throw new SyntaxException("Type REL_OP expected, found " + token.getType());
+        }
     }
 
     public void operadorBooleano() {
@@ -245,18 +263,17 @@ public class Parser {
 
     public void termoAritmetico () {
         fatorAritmetico();
-        this.token = this.scanner.nextToken();
         termoAritmetico2();
-        this.token = this.scanner.nextToken();
         match(this.token, TokenType.DELIMITER);
     }
 
     public void termoAritmetico2 () {
-        termoAritmetico3();
         this.token = this.scanner.nextToken();
-        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+        if (this.token != null && (this.token.getType() == TokenType.MULT_OP || this.token.getType() == TokenType.DIV_OP)) {
+            termoAritmetico3();
             termoAritmetico2();
         }
+
     }
 
     public void termoAritmetico3 () {
@@ -274,8 +291,7 @@ public class Parser {
 
     public void fatorAritmetico() {
         if (
-            this.token.getContent().intern() != Keyword.INT.toString().intern() &&
-            this.token.getContent().intern() != Keyword.FLOAT.toString().intern() &&
+            this.token.getType() != TokenType.NUMBER &&
             this.token.getType() != TokenType.IDENTYFIER
         ) {
             if (this.token.getType() != TokenType.LEFT_PARENTHESIS) {
@@ -288,6 +304,5 @@ public class Parser {
             this.token = this.scanner.nextToken();
             match(this.token, TokenType.RIGHT_PARENTHESIS);
         }
-
     } 
 }
