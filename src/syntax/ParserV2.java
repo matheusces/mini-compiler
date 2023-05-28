@@ -16,13 +16,13 @@ public class ParserV2 {
 		this.scanner = scanner;
 	}
 
-	public void match(Token token, TokenType type) {
+    public void match(Token token, TokenType type) {
 		if (this.token != null) {
 			if (token.getType() != type) {
-				throw new SyntaxException("Type " + type + " expected, found " + token.getType() + " with value: " +  token.getContent());
+				throw new SyntaxException("Type " + type + " expected, found " + token.getType() + " with value: " +  token.getContent() + " : " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");
 			}
 		} else {
-			throw new SyntaxException("Type " + type + " expected, found null ");
+			throw new SyntaxException("Type " + type + " expected, found null"  + ": " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");
 		}
 
 	}
@@ -30,10 +30,10 @@ public class ParserV2 {
 	public void match(Token token, Keyword keyword) {
 		if(this.token != null) {
 			if (token.getContent().intern() != keyword.toString().intern()) {
-				throw new SyntaxException("Keyword " + keyword + " expected, found " + token.getContent());
+				throw new SyntaxException("Keyword " + keyword + " expected, found " + token.getContent() + ": " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");
 			}
 		} else {
-			throw new SyntaxException("Keyword " + keyword + " expected, found null");
+			throw new SyntaxException("Keyword " + keyword + " expected, found null" + ": " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");
 		}
 
 	}
