@@ -3,7 +3,7 @@ package main;
 import exceptions.LexicalException;
 import exceptions.SyntaxException;
 import lexical.Scanner;
-import lexical.Token;
+// import lexical.Token;
 import syntax.Parser;
 import syntax.ParserV2;
 

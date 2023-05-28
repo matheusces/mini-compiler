@@ -13,8 +13,8 @@ public class Scanner {
 	int pos;
 	char[] contentTXT;
 	int state;
-	int line;
-	int column;
+	public int line;
+	public int column;
 
 	public Scanner(String filename) {
 		try {
@@ -40,9 +40,10 @@ public class Scanner {
 			}
 
 			currentChar = this.nextChar();
+			// System.out.println(currentChar + " line: " + this.line + " column: " + this.column);
 
 			if (isEndOfLine(currentChar)) {
-				this.line += 1;
+				this.line++;
 				this.column = 1;
 			}
 
@@ -52,6 +53,9 @@ public class Scanner {
 						while (!this.isEndOfLine(currentChar)) {
                             currentChar = this.nextChar();
                         }
+
+						this.line++;
+						this.column = 1;
                         state = 0;
 					}else if (this.isLetter(currentChar)) {
 						content += currentChar;
@@ -78,10 +82,10 @@ public class Scanner {
 						state = 7;
 					} else if(isLeftParenthesis(currentChar)) {
 						content += currentChar;
-           				return new Token(TokenType.LEFT_PARENTHESIS, content);
+           				return new Token(TokenType.LEFT_PARENTHESIS, content, this.line, this.column);
 					} else if(isRightParenthesis(currentChar)) {
 						content += currentChar;
-            			return new Token(TokenType.RIGHT_PARENTHESIS, content);
+            			return new Token(TokenType.RIGHT_PARENTHESIS, content, this.line, this.column);
 					} else if (isDot(currentChar)) {
 						content += currentChar;
 						state = 8;
@@ -90,11 +94,11 @@ public class Scanner {
 						state = 10;
 					} else if (isDelimiter(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.DELIMITER, content);
+						return new Token(TokenType.DELIMITER, content, this.line, this.column);
 						
 					} else if (isTwoPoints(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.TWO_POINTS, content);
+						return new Token(TokenType.TWO_POINTS, content, this.line, this.column);
 					} else {
 						throw new RuntimeException("Error: Invalid Character [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
@@ -108,14 +112,11 @@ public class Scanner {
 						if (isSpace(currentChar) || isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
 							for (Keyword k : Keyword.values()) {
 								if (content.intern() == k.toString().intern()) {
-									return new Token(TokenType.RESERVED_KEYWORD, k.toString());
+									return new Token(TokenType.RESERVED_KEYWORD, k.toString(), this.line, this.column);
 								}
 							}
 
-							// if (isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
-							// 	this.back();
-							// }
-							return new Token(TokenType.IDENTYFIER, content);
+							return new Token(TokenType.IDENTYFIER, content, this.line, this.column);
 						}
 
 						throw new RuntimeException("Error: Invalid character for Identifyer: [line:" + this.line  + " ] [column:"+ this.column + "]");
@@ -129,10 +130,10 @@ public class Scanner {
 						content += currentChar;
 						state = 8;
 					} else	if (isSpace(currentChar) || isEndOfLine(currentChar) || isRightParenthesis(currentChar)) {
-						return new Token(TokenType.NUMBER, content);
+						return new Token(TokenType.NUMBER, content, this.line, this.column);
 					} else if (isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
 						this.back();
-						return new Token(TokenType.NUMBER, content);
+						return new Token(TokenType.NUMBER, content, this.line, this.column);
 					} else {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
@@ -147,34 +148,34 @@ public class Scanner {
 
 					} else if(isEquals(currentChar) && !isEquals(this.contentTXT[this.pos])) {
 						content += currentChar;
-						return new Token(TokenType.EQUALS_OP, content);
+						return new Token(TokenType.EQUALS_OP, content, this.line, this.column);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						return new Token(TokenType.ASSIGN_OP, content);
+						return new Token(TokenType.ASSIGN_OP, content, this.line, this.column);
 					}
 
 				case 5:
 					if (isEquals(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.LESS_EQUALS_OP, content);
+						return new Token(TokenType.LESS_EQUALS_OP, content, this.line, this.column);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						return new Token(TokenType.LESS_OP, content);
+						return new Token(TokenType.LESS_OP, content, this.line, this.column);
 					}
 				
 				case 6:
 					if (isEquals(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.GREATER_EQUALS_OP, content);
+						return new Token(TokenType.GREATER_EQUALS_OP, content, this.line, this.column);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						return new Token(TokenType.GREATER_OP, content);
+						return new Token(TokenType.GREATER_OP, content, this.line, this.column);
 					}
 
 				case 7:
 					if (isEquals(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.DIF_OP, content);
+						return new Token(TokenType.DIF_OP, content, this.line, this.column);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
 						throw new RuntimeException("Operator ! don't is supported [line:" + line  + " ] [column:"+ column + "]");
@@ -194,7 +195,7 @@ public class Scanner {
 						content += currentChar;
 						state = 9;
 					} else if (isSpace(currentChar) || isEndOfLine(currentChar)) {
-						return new Token(TokenType.NUMBER, content);
+						return new Token(TokenType.NUMBER, content, this.line, this.column);
 					} else {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					}
@@ -203,7 +204,7 @@ public class Scanner {
 				case 10: 
 					if (isDoubleQuotes(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.STRING, content);
+						return new Token(TokenType.STRING, content, this.line, this.column);
 					}
 					content += currentChar;
 					state = 10;
@@ -281,21 +282,21 @@ public class Scanner {
 		return false;
 	}
 
-	private boolean isEspecialCharacter(String c) {
-		return c.matches("[\\p{Punct}]");
-	}
+	// private boolean isEspecialCharacter(String c) {
+	// 	return c.matches("[\\p{Punct}]");
+	// }
 
 	private Token getMathToken(String c) {
 		this.back();
 		switch (c) {
 			case "+":
-				return new Token(TokenType.SUM_OP, c);
+				return new Token(TokenType.SUM_OP, c, this.line, this.column);
 			case "-":
-				return new Token(TokenType.SUB_OP, c);
+				return new Token(TokenType.SUB_OP, c, this.line, this.column);
 			case "*":
-				return new Token(TokenType.MULT_OP, c);
+				return new Token(TokenType.MULT_OP, c, this.line, this.column);
 			default: 
-				return new Token(TokenType.DIV_OP, c);	
+				return new Token(TokenType.DIV_OP, c, this.line, this.column);	
 		}
 	}
 
