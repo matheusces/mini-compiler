@@ -105,15 +105,19 @@ public class Scanner {
 						state = 1;
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						if (isSpace(currentChar)) {
+						if (isSpace(currentChar) || isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
 							for (Keyword k : Keyword.values()) {
-								if (content.intern() == k.toString().toLowerCase().intern()) {
+								if (content.intern() == k.toString().intern()) {
 									return new Token(TokenType.RESERVED_KEYWORD, k.toString());
 								}
 							}
 
+							// if (isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
+							// 	this.back();
+							// }
 							return new Token(TokenType.IDENTYFIER, content);
 						}
+
 						throw new RuntimeException("Error: Invalid character for Identifyer: [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
 					break;
@@ -125,6 +129,9 @@ public class Scanner {
 						content += currentChar;
 						state = 8;
 					} else	if (isSpace(currentChar) || isEndOfLine(currentChar) || isRightParenthesis(currentChar)) {
+						return new Token(TokenType.NUMBER, content);
+					} else if (isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
+						this.back();
 						return new Token(TokenType.NUMBER, content);
 					} else {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + this.line  + " ] [column:"+ this.column + "]");
