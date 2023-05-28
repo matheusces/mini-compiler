@@ -123,7 +123,9 @@ public class ParserV2 {
             throw new SyntaxException("Expected ASSING, INPUT, PRINT, IF or WHILE and found " + token.getContent());
         }
 
-        match(this.token, TokenType.DELIMITER);
+        if (token != null) {
+            match(this.token, TokenType.DELIMITER);
+        }
 	}
 
 	public void comandoAtribuicao() {
@@ -155,25 +157,36 @@ public class ParserV2 {
 		expressaoRelacional(null);
 		match(this.token, Keyword.THEN);
 		comando(null);
-		comandoCondicao2();
+		comandoCondicao2(null);
 	}
 
-	public void comandoCondicao2() {
-		this.token = this.scanner.nextToken();
-		if (token != null && token.getType() != TokenType.DELIMITER && token.getContent().intern() != Keyword.ELSE.toString().intern()) {
-            comando(token);
-		}
-
-        if (token.getType() != TokenType.DELIMITER) {
-            match(this.token, Keyword.ELSE);
-			comando(null);
+	public void comandoCondicao2(Token tokenprop) {
+        if (tokenprop == null) {
             this.token = this.scanner.nextToken();
         }
+		if (token != null && token.getType() != TokenType.DELIMITER && token.getContent().intern() != Keyword.ELSE.toString().intern()) {
+            comando(token);
+            comandoCondicao2(null);
+            return;
+		}
+
+        if (token != null && token.getType() != TokenType.DELIMITER) {
+            match(this.token, Keyword.ELSE);
+            comandoCondicao2(null);
+        }
+
+
+
 	}
 
 	public void comandoRepeticao() {
 		expressaoRelacional(null);
 		comando(this.token);
+
+        this.token = this.scanner.nextToken();
+        if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
+            comando(this.token);
+        }
 	}
 
 	public void expressaoAritmetica() {
