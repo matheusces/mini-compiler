@@ -22,9 +22,7 @@ public class Parser {
 	public void match(Token token, TokenType type) {
 		if (this.token != null) {
 			if (token.getType() != type) {
-                System.out.println();
-                this.toNextToken();
-				throw new SyntaxException("Type " + type + " expected, found " + token.getType() + " with value: " +  token.getContent() + ": " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");
+				throw new SyntaxException("Type " + type + " expected, found " + token.getType() + " with value: " +  token.getContent() + " : " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");
 			}
 		} else {
 			throw new SyntaxException("Type " + type + " expected, found null"  + ": " + "[line:" + this.token.getLine()  + " ] [column:"+ this.token.getColumn() + "]");

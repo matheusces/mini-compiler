@@ -14,6 +14,8 @@ public class Scanner {
 	char[] contentTXT;
 	int state;
 	public int line;
+	public int tokenLine = 0;
+	public int tokenColumn = 1;
 	public int column;
 
 	public Scanner(String filename) {
@@ -34,12 +36,16 @@ public class Scanner {
 		String content = "";
 		char currentChar;
 
+		this.tokenLine = this.line;
+		this.tokenColumn = this.column;
+
 		while (true) {
 			if (isEOF()) {
 				return null;
 			}
 
 			currentChar = this.nextChar();
+
 			// System.out.println(currentChar + " line: " + this.line + " column: " + this.column);
 
 			if (isEndOfLine(currentChar)) {
@@ -82,10 +88,10 @@ public class Scanner {
 						state = 7;
 					} else if(isLeftParenthesis(currentChar)) {
 						content += currentChar;
-           				return new Token(TokenType.LEFT_PARENTHESIS, content, this.line, this.column);
+           				return new Token(TokenType.LEFT_PARENTHESIS, content, this.tokenLine, this.tokenColumn);
 					} else if(isRightParenthesis(currentChar)) {
 						content += currentChar;
-            			return new Token(TokenType.RIGHT_PARENTHESIS, content, this.line, this.column);
+            			return new Token(TokenType.RIGHT_PARENTHESIS, content, this.tokenLine, this.tokenColumn);
 					} else if (isDot(currentChar)) {
 						content += currentChar;
 						state = 8;
@@ -94,11 +100,11 @@ public class Scanner {
 						state = 10;
 					} else if (isDelimiter(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.DELIMITER, content, this.line, this.column);
+						return new Token(TokenType.DELIMITER, content, this.tokenLine, this.tokenColumn);
 						
 					} else if (isTwoPoints(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.TWO_POINTS, content, this.line, this.column);
+						return new Token(TokenType.TWO_POINTS, content, this.tokenLine, this.tokenColumn);
 					} else {
 						throw new RuntimeException("Error: Invalid Character [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
@@ -112,11 +118,10 @@ public class Scanner {
 						if (isSpace(currentChar) || isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
 							for (Keyword k : Keyword.values()) {
 								if (content.intern() == k.toString().intern()) {
-									return new Token(TokenType.RESERVED_KEYWORD, k.toString(), this.line, this.column);
+									return new Token(TokenType.RESERVED_KEYWORD, k.toString(), this.tokenLine, this.tokenColumn);
 								}
 							}
-
-							return new Token(TokenType.IDENTYFIER, content, this.line, this.column);
+							return new Token(TokenType.IDENTYFIER, content, this.tokenLine, this.tokenColumn);
 						}
 
 						throw new RuntimeException("Error: Invalid character for Identifyer: [line:" + this.line  + " ] [column:"+ this.column + "]");
@@ -130,10 +135,10 @@ public class Scanner {
 						content += currentChar;
 						state = 8;
 					} else	if (isSpace(currentChar) || isEndOfLine(currentChar) || isRightParenthesis(currentChar)) {
-						return new Token(TokenType.NUMBER, content, this.line, this.column);
+						return new Token(TokenType.NUMBER, content, this.tokenLine, this.tokenColumn);
 					} else if (isDelimiter(currentChar) || isMathOperator(currentChar) || isTwoPoints(currentChar)) {
 						this.back();
-						return new Token(TokenType.NUMBER, content, this.line, this.column);
+						return new Token(TokenType.NUMBER, content, this.tokenLine, this.tokenColumn);
 					} else {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + this.line  + " ] [column:"+ this.column + "]");
 					}
@@ -148,34 +153,34 @@ public class Scanner {
 
 					} else if(isEquals(currentChar) && !isEquals(this.contentTXT[this.pos])) {
 						content += currentChar;
-						return new Token(TokenType.EQUALS_OP, content, this.line, this.column);
+						return new Token(TokenType.EQUALS_OP, content, this.tokenLine, this.tokenColumn);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						return new Token(TokenType.ASSIGN_OP, content, this.line, this.column);
+						return new Token(TokenType.ASSIGN_OP, content, this.tokenLine, this.tokenColumn);
 					}
 
 				case 5:
 					if (isEquals(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.LESS_EQUALS_OP, content, this.line, this.column);
+						return new Token(TokenType.LESS_EQUALS_OP, content, this.tokenLine, this.tokenColumn);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						return new Token(TokenType.LESS_OP, content, this.line, this.column);
+						return new Token(TokenType.LESS_OP, content, this.tokenLine, this.tokenColumn);
 					}
 				
 				case 6:
 					if (isEquals(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.GREATER_EQUALS_OP, content, this.line, this.column);
+						return new Token(TokenType.GREATER_EQUALS_OP, content, this.tokenLine, this.tokenColumn);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
-						return new Token(TokenType.GREATER_OP, content, this.line, this.column);
+						return new Token(TokenType.GREATER_OP, content, this.tokenLine, this.tokenColumn);
 					}
 
 				case 7:
 					if (isEquals(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.DIF_OP, content, this.line, this.column);
+						return new Token(TokenType.DIF_OP, content, this.tokenLine, this.tokenColumn);
 					} else {
 						if (!isEndOfLine(currentChar)) this.back();
 						throw new RuntimeException("Operator ! don't is supported [line:" + line  + " ] [column:"+ column + "]");
@@ -195,7 +200,7 @@ public class Scanner {
 						content += currentChar;
 						state = 9;
 					} else if (isSpace(currentChar) || isEndOfLine(currentChar)) {
-						return new Token(TokenType.NUMBER, content, this.line, this.column);
+						return new Token(TokenType.NUMBER, content, this.tokenLine, this.tokenColumn);
 					} else {
 						throw new RuntimeException("Error: Invalid Character for Number [line:" + line  + " ] [column:"+ column + "]");
 					}
@@ -204,7 +209,7 @@ public class Scanner {
 				case 10: 
 					if (isDoubleQuotes(currentChar)) {
 						content += currentChar;
-						return new Token(TokenType.STRING, content, this.line, this.column);
+						return new Token(TokenType.STRING, content, this.tokenLine, this.tokenColumn);
 					}
 					content += currentChar;
 					state = 10;
