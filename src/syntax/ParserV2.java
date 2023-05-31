@@ -182,12 +182,16 @@ public class ParserV2 {
 	public void comandoRepeticao() {
 		expressaoRelacional(null);
 		comando(this.token);
+        comandoRepeticao2();
+	}
 
+    public void comandoRepeticao2() {
         this.token = this.scanner.nextToken();
         if (this.token != null && this.token.getType() != TokenType.DELIMITER) {
             comando(this.token);
+            comandoRepeticao2();
         }
-	}
+    }
 
 	public void expressaoAritmetica() {
         termoAritmetico();   //  2/4 , 4 x 3  // next Token chamado na ultima interação

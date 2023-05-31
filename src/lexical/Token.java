@@ -16,7 +16,7 @@ public class Token {
 		this.content = content;
 		this.line = line;
 		this.column = column;
-		System.out.println(content + " line: " + line + " column: " + column);
+		// System.out.println(content + " line: " + line + " column: " + column);
 	}
 
 	public int getLine() {

@@ -3,17 +3,19 @@ INT : numero2
 INT : numero2 
 FLOAT : numero3 
 INT : numero4
+INT : mero4
 INT : numero4
-INT : numero4
-INT : numero
+INT : AUX
+
+
 ; ; ; ; ; ; ; ; 
 
 :ALGORITMO
 # Coloca 3 números em ordem crescente
-INPUT numero1
+INPUT num1 AND x
 INPUT numero2
 INPUT numero3
-IF 2 ;; < 3 ;; ; THEN
+IF 2 ;; <  ;; ; THEN
     ASSIGN 2 ;; TO aux
 ELSE PRINT "MASSA" ;
 PRINT numero1
